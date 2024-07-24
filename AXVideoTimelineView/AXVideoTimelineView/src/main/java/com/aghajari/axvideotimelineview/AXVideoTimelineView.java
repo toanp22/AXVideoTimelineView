@@ -12,7 +12,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -22,21 +21,17 @@ import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * 
  * @author Amir Hossein Aghajari
  * @version 1.00
- *
  */
-public class AXVideoTimelineView extends View{
+public class AXVideoTimelineView extends View {
 
     long videoLength;
 
-    private boolean playEnabled=true;
+    private boolean playEnabled = true;
     private Paint paint;
     private Paint paint2;
     private boolean pressedLeft;
@@ -85,6 +80,7 @@ public class AXVideoTimelineView extends View{
     }
 
     private float density = 1;
+
     int dp(float value) {
         if (value == 0) {
             return 0;
@@ -92,11 +88,11 @@ public class AXVideoTimelineView extends View{
         return (int) Math.ceil(density * value);
     }
 
-    private int getTimelineColor (int color){
-        return Color.argb(127,Color.red(color),Color.green(color),Color.blue(color));
+    private int getTimelineColor(int color) {
+        return Color.argb(127, Color.red(color), Color.green(color), Color.blue(color));
     }
 
-    private void init(AttributeSet attrs){
+    private void init(AttributeSet attrs) {
         density = getContext().getResources().getDisplayMetrics().density;
         utils = new AXFrameDecoderUtils();
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -105,23 +101,23 @@ public class AXVideoTimelineView extends View{
         drawableRight = ContextCompat.getDrawable(getContext(), R.drawable.video_cropright);
 
 
-        int color=Color.WHITE;
-        int iconColor=Color.BLACK;
+        int color = Color.WHITE;
+        int iconColor = Color.BLACK;
         int timelineColor = Color.BLACK;
 
-        if (attrs!=null){
-            TypedArray a = getContext().obtainStyledAttributes(attrs,R.styleable.AXVideoTimelineView);
-            color = a.getColor(R.styleable.AXVideoTimelineView_color,Color.WHITE);
-            iconColor = a.getColor(R.styleable.AXVideoTimelineView_iconColor,Color.BLACK);
-            timelineColor = a.getColor(R.styleable.AXVideoTimelineView_timelineColor,Color.BLACK);
-            minProgressDiff = a.getFloat(R.styleable.AXVideoTimelineView_minProgress,0.0f);
-            maxProgressDiff = a.getFloat(R.styleable.AXVideoTimelineView_minProgress,1.0f);
-            progressRight = a.getFloat(R.styleable.AXVideoTimelineView_rightProgress,1.0f);
-            progressLeft = a.getFloat(R.styleable.AXVideoTimelineView_leftProgress,0.0f);
-            playProgress = a.getFloat(R.styleable.AXVideoTimelineView_playProgress,0.5f);
-            playEnabled = a.getBoolean(R.styleable.AXVideoTimelineView_playLine,true);
-            setRoundFrames(a.getBoolean(R.styleable.AXVideoTimelineView_roundFrames,false));
-            radius = a.getDimension(R.styleable.AXVideoTimelineView_roundRadius,dp(2));
+        if (attrs != null) {
+            TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.AXVideoTimelineView);
+            color = a.getColor(R.styleable.AXVideoTimelineView_color, Color.WHITE);
+            iconColor = a.getColor(R.styleable.AXVideoTimelineView_iconColor, Color.BLACK);
+            timelineColor = a.getColor(R.styleable.AXVideoTimelineView_timelineColor, Color.BLACK);
+            minProgressDiff = a.getFloat(R.styleable.AXVideoTimelineView_minProgress, 0.0f);
+            maxProgressDiff = a.getFloat(R.styleable.AXVideoTimelineView_minProgress, 1.0f);
+            progressRight = a.getFloat(R.styleable.AXVideoTimelineView_rightProgress, 1.0f);
+            progressLeft = a.getFloat(R.styleable.AXVideoTimelineView_leftProgress, 0.0f);
+            playProgress = a.getFloat(R.styleable.AXVideoTimelineView_playProgress, 0.5f);
+            playEnabled = a.getBoolean(R.styleable.AXVideoTimelineView_playLine, true);
+            setRoundFrames(a.getBoolean(R.styleable.AXVideoTimelineView_roundFrames, false));
+            radius = a.getDimension(R.styleable.AXVideoTimelineView_roundRadius, dp(2));
 
             paint.setColor(color);
             drawableRight.setColorFilter(new PorterDuffColorFilter(iconColor, PorterDuff.Mode.MULTIPLY));
@@ -129,7 +125,7 @@ public class AXVideoTimelineView extends View{
             paint2.setColor(getTimelineColor(timelineColor));
 
             String video = a.getString(R.styleable.AXVideoTimelineView_videoPath);
-            if (video!=null && !video.isEmpty() && video.length()>2){
+            if (video != null && !video.isEmpty() && video.length() > 2) {
                 setVideoPath(video);
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -137,7 +133,7 @@ public class AXVideoTimelineView extends View{
             } else {
                 a.recycle();
             }
-        }else {
+        } else {
             paint.setColor(color);
             paint2.setColor(getTimelineColor(timelineColor));
             drawableRight.setColorFilter(new PorterDuffColorFilter(iconColor, PorterDuff.Mode.MULTIPLY));
@@ -155,12 +151,12 @@ public class AXVideoTimelineView extends View{
         return playEnabled;
     }
 
-    public void setIconColors(int Color){
+    public void setIconColors(int Color) {
         drawableLeft.setColorFilter(new PorterDuffColorFilter(Color, PorterDuff.Mode.MULTIPLY));
         drawableRight.setColorFilter(new PorterDuffColorFilter(Color, PorterDuff.Mode.MULTIPLY));
     }
 
-    public void setTimelineColor(int Color){
+    public void setTimelineColor(int Color) {
         paint2.setColor(getTimelineColor(Color));
     }
 
@@ -196,7 +192,7 @@ public class AXVideoTimelineView extends View{
         }
     }
 
-    public boolean isRoundFrames(){
+    public boolean isRoundFrames() {
         return isRoundFrames;
     }
 
@@ -205,11 +201,11 @@ public class AXVideoTimelineView extends View{
     }
 
     public int getFrameHeight() {
-        return  utils.frameHeight;
+        return utils.frameHeight;
     }
 
     public long getFrameTimeOffset() {
-        return  utils.frameTimeOffset;
+        return utils.frameTimeOffset;
     }
 
     public void setColor(int color) {
@@ -224,20 +220,29 @@ public class AXVideoTimelineView extends View{
         this.listener = listener;
     }
 
-    public long getVideoDuration() { return videoLength; }
-    public long getCroppedDuration(){
+    public long getVideoDuration() {
+        return videoLength;
+    }
+
+    public long getCroppedDuration() {
         float time = getRightProgress() - getLeftProgress();
-        return  (long) (getVideoDuration()*time);
+        return (long) (getVideoDuration() * time);
     }
 
     public boolean isPlayDragging() {
         return pressedPlay;
     }
-    public boolean isLeftDragging() { return pressedLeft; }
-    public boolean isRightDragging() { return pressedRight; }
-    public boolean isDragging(){
-        if (pressedPlay||pressedLeft||pressedRight) return true;
-        return false;
+
+    public boolean isLeftDragging() {
+        return pressedLeft;
+    }
+
+    public boolean isRightDragging() {
+        return pressedRight;
+    }
+
+    public boolean isDragging() {
+        return pressedPlay || pressedLeft || pressedRight;
     }
 
     @Override
@@ -260,7 +265,7 @@ public class AXVideoTimelineView extends View{
             }
             int additionWidth = dp(12);
             int additionWidthPlay = dp(8);
-            if (playEnabled&&playX - additionWidthPlay <= x && x <= playX + additionWidthPlay && y >= 0 && y <= getMeasuredHeight()) {
+            if (playEnabled && playX - additionWidthPlay <= x && x <= playX + additionWidthPlay && y >= 0 && y <= getMeasuredHeight()) {
                 pressedPlay = true;
                 if (listener != null) listener.onDraggingStateChanged(true);
                 pressDx = (int) (x - playX);
@@ -363,8 +368,7 @@ public class AXVideoTimelineView extends View{
         mediaMetadataRetriever = new MediaMetadataRetriever();
         progressLeft = 0.0f;
         progressRight = 1.0f;
-        try {
-            FileInputStream inputStream = new FileInputStream(file.getAbsolutePath());
+        try (FileInputStream inputStream = new FileInputStream(file.getAbsolutePath());) {
             mediaMetadataRetriever.setDataSource(inputStream.getFD());
             String duration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             videoLength = Long.parseLong(duration);
@@ -386,20 +390,17 @@ public class AXVideoTimelineView extends View{
             utils.load(this);
         }
         currentTask = new AXFrameDecoder(this,
-                new AXFrameDecoder.AXFrameDecoderListener() {
-            @Override
-            public void frameDecoded(Bitmap frame, int frameNumber) {
-                frames.add(frame);
-                invalidate();
-                if (frameNumber < utils.framesToLoad) {
-                    reloadFrames(frameNumber + 1);
-                }
-            }
-        });
+                (frame, frameNumber) -> {
+                    frames.add(frame);
+                    invalidate();
+                    if (frameNumber < utils.framesToLoad) {
+                        reloadFrames(frameNumber + 1);
+                    }
+                });
         currentTask.decodeFrame(frameNum);
     }
 
-    public void reloadFrames(){
+    public void reloadFrames() {
         reloadFrames(0);
     }
 
