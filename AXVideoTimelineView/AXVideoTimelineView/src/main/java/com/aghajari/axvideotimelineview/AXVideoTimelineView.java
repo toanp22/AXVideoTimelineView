@@ -13,9 +13,12 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
+import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -98,8 +101,8 @@ public class AXVideoTimelineView extends View{
         utils = new AXFrameDecoderUtils();
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint2 = new Paint();
-        drawableLeft = getContext().getResources().getDrawable(R.drawable.video_cropleft);
-        drawableRight = getContext().getResources().getDrawable(R.drawable.video_cropright);
+        drawableLeft = ContextCompat.getDrawable(getContext(), R.drawable.video_cropleft);
+        drawableRight = ContextCompat.getDrawable(getContext(), R.drawable.video_cropright);
 
 
         int color=Color.WHITE;
@@ -129,8 +132,11 @@ public class AXVideoTimelineView extends View{
             if (video!=null && !video.isEmpty() && video.length()>2){
                 setVideoPath(video);
             }
-
-            a.recycle();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                a.close();
+            } else {
+                a.recycle();
+            }
         }else {
             paint.setColor(color);
             paint2.setColor(getTimelineColor(timelineColor));
@@ -390,7 +396,7 @@ public class AXVideoTimelineView extends View{
                 }
             }
         });
-        currentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, frameNum, null, null);
+        currentTask.decodeFrame(frameNum);
     }
 
     public void reloadFrames(){
@@ -431,7 +437,7 @@ public class AXVideoTimelineView extends View{
         }
         frames.clear();
         if (currentTask != null) {
-            currentTask.cancel(true);
+            currentTask.destroy();
             currentTask = null;
         }
     }
